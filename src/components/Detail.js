@@ -1,36 +1,73 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   useHistory,
   useParams,
 } from "react-router-dom/cjs/react-router-dom.min";
-import styled from "styled-components";
-
-let 박스 = styled.div`
-  padding: 20px;
-`;
-
-let 제목 = styled.h4`
-  font-size: 24px;
-`;
+import "../css/Detail.scss";
 
 function Detail(props) {
+  let [inputData, inputDataChange] = useState([]);
+  let [alertShow, alertHide] = useState(true);
+
+  useEffect(() => {
+    // 2초 후에 실행
+    let timer = setTimeout(() => {
+      alertHide(false);
+    }, 2000);
+    return () => {
+      clearTimeout(timer);
+    };
+  }, []);
   let { id } = useParams();
   let history = useHistory();
   let shoesId = props.shoes.find(function (shoesData) {
     return shoesData.id == id;
   });
-
+  function rmStock() {
+    let i = shoesId.id;
+    var stockCopy = [...props.stock];
+    stockCopy[i] = stockCopy[i] - 1;
+    props.stockChange(stockCopy);
+  }
   return (
     <div className="container">
+      {alertShow === true ? (
+        <div className="my-alert-yellow">
+          <p>재고가 얼마 남지 않았습니다.</p>
+        </div>
+      ) : null}
+      {inputData}
+      <input
+        onChange={(e) => {
+          inputDataChange(e.target.value);
+        }}
+      />
+
       <div className="row">
         <div className="col-md-6">
-          <img src={shoesId.src} width="100%" alt="" />
+          <img
+            src={
+              "https://codingapple1.github.io/shop/shoes" +
+              (shoesId.id + 1) +
+              ".jpg"
+            }
+            width="100%"
+            alt=""
+          />
         </div>
         <div className="col-md-6 mt-4">
           <h4 className="pt-5">{shoesId.title}</h4>
           <p>{shoesId.content}</p>
           <p>{shoesId.price}</p>
-          <button className="btn btn-danger">주문하기</button>
+          <InfoStock stock={props.stock} />
+          <button
+            className="btn btn-danger"
+            onClick={() => {
+              rmStock();
+            }}
+          >
+            주문하기
+          </button>
           <button
             className="btn btn-grey"
             onClick={() => {
@@ -43,6 +80,9 @@ function Detail(props) {
       </div>
     </div>
   );
+}
+function InfoStock(props) {
+  return <p>재고 : {props.stock[0]} </p>;
 }
 
 export default Detail;

@@ -684,4 +684,273 @@ yarn add styled-components
 
 ## SASS
 
+CSS를 프로그래밍언어스럽게 작성 가능한 전처리도구  
+SASS로 작성한 파일을 CSS로 컴파일해야함
+
+설치
+
+```
+npm install node-sass
+
+yarn add node-sass
+```
+
+1. 변수에 데이터를 저장해서 씀
+
+```scss
+/* $변수명: 변수에 넣을 값; */
+
+$maincolor: $ff0;
+
+.yellow {
+  color: $maincolor;
+}
+```
+
+2)@import 파일경로  
+ reset과 같은 모든 파일에 사용되는 내용을 별로도 작성하고 import로 가져오기
+
+```scss
+// Detail.scss
+@import "./_reset.scss";
+```
+
+3. nesting
+
+```scss
+// css 문법
+.container h4 {
+  color: blue;
+}
+.container p {
+  color: green;
+}
+
+// scss 문법
+.container {
+  h4 {
+    color: blue;
+  }
+  p {
+    color: green;
+  }
+}
+```
+
+4. @extend : 복사 기능  
+   .my-alert 클래스명에 들어있던 모든 내용을 그 자리에 복붙해줌
+
+```scss
+.my-alert {
+  width: 100%;
+  max-width: 500px;
+  background: #eee;
+  border-radius: 5px;
+  padding: 20px;
+  margin: auto;
+  p {
+    margin: 0;
+  }
+}
+.my-alert-yellow {
+  @extend .my-alert;
+  background: #ffe591;
+}
+```
+
+5. @mixin / @include : 함수처럼 사용하기 <br>
+   @mixin: 함수만드는 문법<br>
+   @mixin(){ 내가 축약하고 싶은 코드}<br>
+   작성한 함수 사용할땐,
+   @include 함수명()
+
+```scss
+@mixin 함수() {
+  width: 100%;
+  max-width: 500px;
+  background: #eee;
+  border-radius: 5px;
+  padding: 20px;
+  margin: auto;
+  p {
+    margin: 0;
+  }
+}
+
+.my-alert {
+  @include 함수();
+}
+```
+
+## 컴포넌트 Lifecycle Hook
+
+```js
+class Detail2 extends React.Component {
+  componentDidMount() {
+    //Detail2 컴포넌트가 Mount 되었을 때 실행할 코드
+  }
+  componentWillUnmount() {
+    // Detail2 컴포넌트가 Unmount(사라지기)되기 직전에 실행할 코드
+  }
+}
+```
+
+### useEffect() Hook
+
+컴포넌트가 mount 되었을 때, 컴포넌트가 update될 때 특정코드를 실행할 수 있음  
+lifecycle Hook와 유사
+
+문법  
+[조건지정] : 특정 state가 변경될때만 동작하도록 조건 지정  
+[] : 아무것도 입력하지 않으면 한번만 실행됨
+
+```js
+useEffect(() => {
+  // 기능작성
+}, [조건지정]);
+```
+
+예시
+
+```js
+import React, { useEffect } from 'react'
+
+function App() {
+  useEffect(()=>{
+    // 기능작성
+  })
+  return (
+
+  )
+}
+```
+
+useEffect 여러개 사용하기
+
+```js
+import React, { useEffect } from "react";
+
+function App() {
+  useEffect(() => {
+    // 1번째로 작동
+  });
+  useEffect(() => {
+    // 2번째로 작동
+  });
+}
+```
+
+useEffect() Hook은 컴포넌트 등장/업데이트 시 실행이 되기때문에, 버그가 생길 수도 있음
+-> 필요하지않은 재렌더링/업데이트가 되지 않게 해줘야함
+
+```js
+let [inputData, inputDataChange] = useState([]);
+let [alertShow, alertHide] = useState(true);
+
+useEffect(() => {
+  // alter 창이 2초 뒤에 사라짐
+  let timer = setTimeout(() => {
+    alertHide(false);
+  }, 2000);
+  return () => {
+    clearTimeout(timer);
+  };
+}, []);
+```
+
+> setTimeout() 함수를 해제하지 않으면, 코드가 길어지거나 꼬일 때 이상한 현상이 나타날 수도 있기때문에 컴포넌트가 사라질 때 clearTimeout() 로 해제시켜야 함
+
+## 서버에서 데이터 가져오기 (Ajax)
+
+서버: 누군가 페이지를 요청하면 페이지를 가져다주는 프로그램  
+요청: 서버에 요청하는 방법 (GET / POST)
+| GET | POST |
+| ------------------------------------------------- | ------------------------------------------ |
+| 데이터, 웹페이지같은 것을 읽고싶을 때 보내는 요청 | 데이터를 서버로 보내고 싶을 때 보내는 요청 |
+| 주소창에 url 입력(특정페이지/자료읽기) | 서버로 중요정보 전달 (로그인, 댓글등록 등) |
+
+### Ajax
+
+Ajax는 새로고침 없이 서버에 GET,POST 요청을 할 수 있게 도와줌  
+사용방법: 1) jQuery Ajax - $.ajax() , 2) axios 설치 - axios.get(), 3) 쌩자바스크립트 fetch()  
+리액트 개발환경에서는 axios 혹은 fetch를 많이 사용함
+
+### axios
+
+설치
+
+```js
+npm install axios
+
+yarn add axios
+```
+
+사용방법
+
+```js
+// import 해오기
+import axios from "./axios";
+
+function App(){
+
+  return (
+    <button className="btn btn-primary" onClick={()=>{
+
+      axios.get('GET요청할URL');
+      .then(()=>{ 요청성공시실행할코드 })
+      .catch(()=>{ 요청실패시실행할코드 })
+
+    }}>더보기</button>
+  )
+}
+```
+
+> tip. 어떤 URL로 요청해야하는지는 서버개발자에게 물어보면 됨
+
+### 쌩자바스크립트 fetch()
+
+axios와 똑같이 사용 가능
+가져온 자료가 JSON 이라면 object로 자동변환이 안되기 때문에 object로 변환해줘야 함
+
+```js
+function App(){
+
+  return (
+    <button className="btn btn-primary" onClick={()=>{
+
+      fetch('GET요청할URL');
+      .then(()=>{ 요청성공시실행할코드 })
+      .catch(()=>{ 요청실패시실행할코드 })
+
+    }}>더보기</button>
+  )
+}
+```
+
+> JSON
+> 서버와 통신할 때는 텍스트만 전송할 수 있어서 텍스트처럼 보이게하기 위해 object에 "" 따옴표를 붙임
+
+```json
+[
+  {
+    "id": 3,
+    "title": "Flowey",
+    "content": "only 5 inches",
+    "price": 120000
+  },
+  {
+    "id": 4,
+    "title": "Baby shoes",
+    "content": "for less than 6",
+    "price": 120000
+  },
+  {
+    "id": 5,
+    "title": "Red Herring",
+    "content": "Born in France",
+    "price": 120000
+  }
+]
+```
+
 ## 오류...
