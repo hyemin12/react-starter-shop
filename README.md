@@ -953,4 +953,15 @@ function App(){
 ]
 ```
 
+## react 사이트 build 및 github pages로 배포하기
+
+1\_ 별 오류가 나타나지 않으면 터미널에 build 명령어 입력하기
+
+```
+npm run build
+yarn build
+```
+
+2\_ build 폴더가 생성되었다면 업로드하기
+
 ## 오류...
