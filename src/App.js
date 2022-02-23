@@ -1,11 +1,14 @@
 import "./App.css";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import Data from "./data.js";
 import Detail from "./components/Detail.js";
+import Cart from "./components/Cart.js";
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import axios from "axios";
 
 import { Link, Route, Switch } from "react-router-dom";
+
+let stockContext = React.createContext();
 
 function App() {
   let [shoes, shoes변경] = useState(Data);
@@ -55,11 +58,13 @@ function App() {
             </a>
           </div>
           <div className="container">
-            <div className="row">
-              {shoes.map((a, i) => {
-                return <Card shoes={a} i={i} key={i} />;
-              })}
-            </div>
+            <stockContext.Provider value={stock}>
+              <div className="row">
+                {shoes.map((a, i) => {
+                  return <Card shoes={a} i={i} key={i} />;
+                })}
+              </div>
+            </stockContext.Provider>
             <button
               className="btn btn-primary"
               onClick={() => {
@@ -82,6 +87,9 @@ function App() {
         <Route path="/detail/:id">
           <Detail shoes={shoes} stock={stock} stockChange={stockChange} />
         </Route>
+        <Route path="/cart">
+          <Cart />
+        </Route>
         <Route path="/:id">
           <div>오류! 없는 페이지입니다.</div>
         </Route>
@@ -90,6 +98,7 @@ function App() {
   );
 
   function Card(props) {
+    let stock = useContext(stockContext);
     return (
       <div className="col-md-4">
         <img
@@ -103,6 +112,7 @@ function App() {
         <p>
           {props.shoes.content} & {props.shoes.price}
         </p>
+        {stock[props.i]}
       </div>
     );
   }

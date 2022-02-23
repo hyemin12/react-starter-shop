@@ -17,3 +17,12 @@
   @extend .my-alert;
   background: #ffe591;
 }
+
+// TAB ANIMATION
+.tabAnimation-enter {
+  opacity: 0;
+}
+.tabAnimation-enter-active {
+  opacity: 1;
+  transition: all 0.5s;
+}

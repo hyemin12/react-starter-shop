@@ -953,15 +953,494 @@ function App(){
 ]
 ```
 
-## react 사이트 build 및 github pages로 배포하기
+## context API로 같은 값 공유하기
 
-1\_ 별 오류가 나타나지 않으면 터미널에 build 명령어 입력하기
+1\_ React.createContext() 로 범위 생성  
+2\_ 같은 값을 공유할 HTML을 범위로 싸매기 <범위.Provider value={공유를 만드는 값}></<범위.Provider>  
+3\_ let 이름 = useContexxt(범위이름) 으로 가져다 사용하면 됨
+
+```js
+import React, { useState, useContext } from "react";
+
+let stockContext = React.createContext();
+
+<stockContext.Provider value={stock}>
+  <div className="row">
+    {shoes.map((a, i) => {
+      return <Card shoes={a} i={i} key={i} />;
+    })}
+  </div>
+</stockContext.Provider>;
+
+function Card(props) {
+  let stock = useContext(stockContext);
+  return <div className="col-md-4">{stock[props.i]}</div>;
+}
+```
+
+다른파일에서 사용하려면
+1\_ React.createContext() 로 범위 생성 , 다른파일에서 import할 수 있게 export 해주기
+2\_ 같은 값을 공유할 HTML을 범위로 싸매기 <범위.Provider value={공유를 만드는 값}></<범위.Provider>  
+3\_ 사용할 파일에 import 해오기 | import {범위이름} from '../App.js'
+4\_ let 이름 = useContexxt(범위이름) 으로 가져다 사용하면 됨
+
+```js
+// App.js
+export let stock = useContext(stockContext);
+
+function App() {
+  let [stock, stockChange] = useState([10, 11, 12]);
+
+  return (
+    <stockContext.Provider value={stock}>
+      <Detail />
+    </stockContext.Provider>
+  );
+}
+```
+
+```js
+// Detail.js
+import {stockContext} from './App.js';
+
+function Detail(){
+  let stock = useContext(stockContext);
+
+  return (
+    // 중략
+  )
+}
+```
+
+## TAB UI & ANIMATION 효과주기
+
+1* 버튼을 누르면 각각 거기에 맞는 내용이 보여질 수 있도록 html 작성하기  
+2* 몇번째 버튼을 눌렀는지 state로 저장하기  
+3\_ state에 따라 div를 보이게/안보이게 하기
+
+- if문으로 작성하면 되는데 if 갯수가 많아지면 삼항연산자는 난해해지기 때문에 if문을 적용한 컴포넌트를 만드는게 좋음
+
+```js
+// Detail.js
+function Detail(){
+
+  let [handleTab, handleTabChange] = useState(0);
+
+  return (
+    <div>
+      <Nav variant="tabs" defaultActiveKey="link-0">
+        <Nav.Item>
+          <Nav.Link eventKey="link-0" onClick={()=>{ handleTabChange(0) }}>Active</Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="link-1" onClick={()=>{ handleTabChange(1) }}>Option 2</Nav.Link>
+        </Nav.Item>
+        <Nav.Item>
+          <Nav.Link eventKey="link-2" onClick={()=>{ handleTabChange(2) }}>Option 2</Nav.Link>
+        </Nav.Item>
+      </Nav>
+      <TabContent handleTab={handleTab} />
+    </div>
+  )
+}
+function TabContent(props){
+  if (props.handleTab === 0){
+    return <div>내용1</div>
+  } else if (props.handleTab === 1)){
+    return <div>내용2</div>
+  } else if (props.handleTab === 02){
+    return <div>내용3</div>
+  }
+}
+```
+
+### 애니메이션 사용하기
+
+### 1. HTML / CSS 활용하기
+
+1* 애니메이션 주는 class를 css로 만들기
+2* 컴포넌트 등장/업데이트시 className을 부착하기
+
+- className={} <- 중괄호 앞에 삼항연산자 if문 사용해서,,,
+
+### 2. react-transition-group 라이브러리 활용
+
+1\_ 설치
 
 ```
-npm run build
-yarn build
+npm install react-transition-group
+yarn add react-transition-group
 ```
 
-2\_ build 폴더가 생성되었다면 업로드하기
+2\_ 파일 상단에 import 해오기
+
+```js
+import { CSSTransition } from "react-transition-group";
+```
+
+3\_ 애니메이션을 적용할 HTML 감싸고 in, className, timeout 속성 넣기  
+in={애니메이션 동작켜는 스위치}  
+className="클래스네임"  
+timeout={작동시간}
+
+```js
+function Detail() {
+  return (
+    <div>
+      <CSSTransition in={true} classNames="tabAnimation" timeout={500}>
+        <TabContent handleTab={handleTab} />
+      </CSSTransition>
+    </div>
+  );
+}
+```
+
+4\_ css로 해당 애니메이션 효과주기
+
+```css
+/* TAB ANIMATION */
+
+/* 컴포넌트 등장할 때 적용 */
+.tabAnimation-enter {
+  opacity: 0;
+}
+/* 컴포넌트 등장중일 때 적용 */
+.tabAnimation-enter-active {
+  opacity: 1;
+  transition: all 0.5s;
+}
+```
+
+5\_ 원할 때 스위치 켜기
+변수나 state로 저장해서 true, false 변경 하기
+
+```js
+// Detai.js
+function Detail(){
+
+  let [switch, switchChange] = useState(false);
+  return (
+    <div>
+      <CSSTransition in={switch} classNames="tabAnimation" timeout={500}>
+        <TabContent handleTab={handleTab} />
+      </CSSTransition>
+    </div>
+  )
+}
+
+function TabContent(){
+  useEffect(()=>{props.switchChange(true)})
+  if (props.handleTab === 0){
+    return <div>내용1</div>
+  } else if (props.handleTab === 1){
+    return <div>내용2</div>
+  } else if (props.handleTab === 2){
+    return <div>내용3</div>
+  }
+}
+```
+
+# Redux
+
+복잡한 props 전송이 필요 없고 모든 컴포넌트가 직접 데이터를 꺼내쓸 수 있음
+state 데이터 관리 가능도 가능
+
+redux를 사용하는 이유  
+대규모 사이트들에서 데이터를 한눈에, 한곳에 관리할 수 있기 때문에 사용함
+컴포넌트가 100개 있는 사이트에서 장바구니 state를 수정하는 코드를 짜게된다면, 중간에 state 하나에 이상한 값이 들어와 버그가 생긴다면 버그를 찾으려고 state를 수정하는 100개의 컴포넌트를 뒤져야함..
+
+redux를 만들어 state 수정하는 방법을 만들어 놓으면 redux 안의 reducer 혹은 dispatch를 확인해보면 되기때문에 관리가 용이함.
+
+설치하기
+
+```
+npm install redux react-redux
+
+yarn install redux react-redux
+```
+
+> redux는 데이터를 엄격하게 관리하는 기능,
+> react-redux는 리덕스를 리액트에서 쓸 수 있게 도와주는 기능
+
+## 세팅하기
+
+1* Provider import 해오기
+2* stats값 공유를 원하는 컴포넌트 감싸기
+
+```js
+// index.js
+
+import { Provider } from "react-redux";
+
+ReactDOM.render(
+  <React.StrictMode>
+    <BrowserRouter>
+      <Provider>
+        <App />
+      </Provider>
+    </BrowserRouter>
+  </React.StrictMode>
+);
+```
+
+## redux에서 state 만들기
+
+1* creatStore() import 해오기
+2* 콜백함수에 state 초기값 작성하기
+
+```js
+import { createStore } from "redux";
+
+let store = createStore(() => {
+  return [
+    { id: 0, name: "운동화", quan: 2 },
+    { id: 1, name: "하이힐", quan: 1 },
+    { id: 3, name: "장화", quan: 3 },
+  ];
+});
+```
+
+## store에 있는 state 데이터 꺼내쓰는 법
+
+store 안에 있는 데이터 바인딩을 하려면, 그냥 하면 안되고 store 안에 있는 데이터를 props의 형태로 등록해야함
+
+1* 데이터 사용을 원하는 컴포넌트.js 파일 밑에 function()을 만들기
+2* export default로 내보내던 부분에 connect()(컴포넌트이름)으로 변경하기
+
+- connect 함수는 react-redux에서 import 해야함
+
+```js
+import { connect } from "react-redux";
+
+function props로바꾸기(state) {
+  return {
+    state: state,
+  };
+}
+
+export default connect(props로바꾸기)(Cart);
+```
+
+> state가져오기 함수는 store 안에 있는 state를 props로 만들어주는 역할
+> return 안에 {state : state} 와 같은 형식으로 적으면 store 안에 있는 모든 state 데이터가 props로 등록됨
+> { 사용할이름 : state.name }와 같이 원하는 state만 뽑아서 사용도 가능함
+
+3\_ 데이터 바인딩하기
+props를 사용하려면 props를 추가하기
+
+```js
+function Cart(props) {
+  return (
+    <div>
+      <Table responsive>
+        // 중략
+        {props.state.map((a, i) => {
+          return (
+            <tr key={i}>
+              <td>{a.id}</td>
+              <td>{a.name}</td>
+              <td>{a.quan}</td>
+              <td>
+                <button onClick={() => {}}>+</button>
+              </td>
+            </tr>
+          );
+        })}
+      </Table>
+    </div>
+  );
+}
+```
+
+## 데이터 수정/관리하기
+
+1\_ reducer 함수를 만들고 그 곳에 데이터 수정하는 방법을 정의
+
+1. 데이터의 수정방법 이름을 작명 (action.type === "수정방법이름")
+2. if 문에 "수정방법이름"이 들어올 경우 어떤 state를 return 시킬지 정의
+3. else 문에는 "수정방법이름"이 들어오지 않았을 경우 기본 state를 return 시키도록 정의
+
+```js
+// state 기본값 정의
+let defaultState = [
+  { id: 0, name: "운동화", quan: 2 },
+  { id: 1, name: "하이힐", quan: 1 },
+  { id: 3, name: "장화", quan: 3 },
+];
+
+// state 데이터 수정방법 작성
+function reducer(state = defaultState, action) {
+  if (action.type === "항목추가") {
+    let copy = [...state];
+    copy.push(action.payload);
+    return copy;
+  } else if (action.type === "수량증가") {
+    let copy = [...state];
+    copy[0].quan++;
+    return copy;
+  } else if (action.type === "수량감소" && state[0].quan > 0) {
+    let copy = [...state];
+    copy[0].quan--;
+    return copy;
+  } else {
+    return state;
+  }
+}
+```
+
+2\_ 원하는 곳에서 dispatch() 함수를 사용해서 reducer에게 수정해달라고 요청  
+props.dispatch({ type: "수정방법이름"})
+
+```js
+<button
+  onClick={() => {
+    props.dispatch({ type: "수량증가" });
+  }}
+>
+  +
+</button>
+```
+
+### reducer 하나 더 만들기
+
+기존에 작성해 두었던 데이터 내부에 추가해도 되지만 나중에 데이터를 꺼내쓸 때 문제가 생김.
+일반 컴포넌트에서는 useState()를 사용하면 되고,  
+redux store에서는 reducer를 하나 더 만들면 됨
+
+만드는 방법
+reducer2를 만들어 state 초기값, state 수정하는 방법을 넣고  
+'redux'에서 combineReducer를 import 해와서 combineReducer 안에 모든 reducer를 object 형식으로 담기
+
+```js
+import { createStore, combineReducers } from "redux";
+
+let alertDefault = true;
+
+function reducer2(state = alertDefault, action) {
+  if (action.type === "닫기") {
+    return (alertDefault = false);
+  } else {
+    return state;
+  }
+}
+
+let defaultState = [
+  { id: 0, name: "운동화", quan: 2 },
+  { id: 1, name: "하이힐", quan: 1 },
+  { id: 3, name: "장화", quan: 3 },
+];
+
+function reducer(state = defaultState, action) {
+  if (action.type === "항목추가") {
+    let copy = [...state];
+    copy.push(action.payload);
+    return copy;
+  } else if (action.type === "수량증가") {
+    let copy = [...state];
+    copy[0].quan++;
+    return copy;
+  } else if (action.type === "수량감소" && state[0].quan > 0) {
+    let copy = [...state];
+    copy[0].quan--;
+    return copy;
+  } else {
+    return state;
+  }
+}
+
+let store = createStore(combineReducers(reducer, reducer2));
+
+export default store;
+```
+
+reducer 2개 만든 거 사용하기
+reducer가 2개 이상이면 reducer를 합친거 그대로 출력되기 때문에 reducer를 가져올 때 state.reducer 이름으로 가져와야 함!
+
+```js
+function storeProps(state) {
+  console.log(state);
+  return {
+    state: state.reducer,
+    alterState: state.reducer2,
+  };
+}
+
+export default connect(storeProps)(Cart);
+```
+
+### reducer로 데이터 가져오기
+
+props.dispatch({ type: 수정방법이름 , payload: 전송할 데이터})
+
+```js
+// reducer
+function reducer(state = defaultState, action) {
+  if (action.type === "항목추가") {
+    let copy = [...state];
+    copy.push(action.payload);
+    return copy;
+  }else {
+    return state
+  }
+```
+
+> payload 말고 다른 이름을 사용해도 되지만, payload 는 화물이라는 뜻이 있어서 관습적으로 사용함
+
+## Hook 이용해서 redux state 가져다쓰기
+
+useSelector(), useDispatch()
+
+```js
+import { useDispatch, useSelector } from "react-redux";
+
+function Cart(props) {
+  let state = useSelector((state) => state.reducer);
+  let dispatch = useDispatch();
+
+  return (
+    <div>
+      <Table responsive>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>상품명</th>
+            <th>수량</th>
+            <th>변경</th>
+          </tr>
+        </thead>
+        <thead>
+          {state.map((a, i) => {
+            return (
+              <tr key={i}>
+                <td>{a.id}</td>
+                <td>{a.name}</td>
+                <td>{a.quan}</td>
+                <td>
+                  <button
+                    onClick={() => {
+                      dispatch({ type: "수량증가" });
+                    }}
+                  >
+                    +
+                  </button>
+                  <button
+                    onClick={() => {
+                      dispatch({ type: "수량감소" });
+                    }}
+                  >
+                    -
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
+        </thead>
+      </Table>
+    </div>
+  );
+}
+
+export default Cart;
+```
 
 ## 오류...
