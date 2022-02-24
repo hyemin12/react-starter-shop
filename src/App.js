@@ -3,10 +3,11 @@ import React, { useState, useContext } from "react";
 import Data from "./data.js";
 import Detail from "./components/Detail.js";
 import Cart from "./components/Cart.js";
+import Practice from "./components/Practice.js";
 import { Container, Nav, Navbar, NavDropdown } from "react-bootstrap";
 import axios from "axios";
 
-import { Link, Route, Switch } from "react-router-dom";
+import { Link, Route, Switch, useHistory } from "react-router-dom";
 
 let stockContext = React.createContext();
 
@@ -16,6 +17,7 @@ function App() {
 
   return (
     <div className="App">
+      <Practice />
       <Navbar bg="light" expand="lg">
         <Container>
           <Navbar.Brand href="/">Shoe Shop</Navbar.Brand>
@@ -84,7 +86,7 @@ function App() {
             </button>
           </div>
         </Route>
-        <Route path="/detail/:id">
+        <Route path="/detail/:id" component={Detail}>
           <Detail shoes={shoes} stock={stock} stockChange={stockChange} />
         </Route>
         <Route path="/cart">
@@ -99,8 +101,14 @@ function App() {
 
   function Card(props) {
     let stock = useContext(stockContext);
+    let history = useHistory();
     return (
-      <div className="col-md-4">
+      <div
+        className="col-md-4"
+        onClick={() => {
+          history.push("/detail/ " + props.shoes.id);
+        }}
+      >
         <img
           src={
             "https://codingapple1.github.io/shop/shoes" + (props.i + 1) + ".jpg"

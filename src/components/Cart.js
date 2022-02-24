@@ -18,31 +18,32 @@ function Cart(props) {
           </tr>
         </thead>
         <thead>
-          {state.map((a, i) => {
-            return (
-              <tr key={i}>
-                <td>{a.id}</td>
-                <td>{a.name}</td>
-                <td>{a.quan}</td>
-                <td>
-                  <button
-                    onClick={() => {
-                      dispatch({ type: "수량증가" });
-                    }}
-                  >
-                    +
-                  </button>
-                  <button
-                    onClick={() => {
-                      dispatch({ type: "수량감소" });
-                    }}
-                  >
-                    -
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
+          {state &&
+            state.map((a, i) => {
+              return (
+                <tr key={i}>
+                  <td>{a.id}</td>
+                  <td>{a.name}</td>
+                  <td>{a.quan}</td>
+                  <td>
+                    <button
+                      onClick={() => {
+                        dispatch({ type: "수량증가", data: a.id });
+                      }}
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={() => {
+                        dispatch({ type: "수량감소", data: a.id });
+                      }}
+                    >
+                      -
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
         </thead>
       </Table>
       {/* {props.alterState === true ? (

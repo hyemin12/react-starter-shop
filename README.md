@@ -1444,3 +1444,126 @@ export default Cart;
 ```
 
 ## 오류...
+
+<컴포넌트 /> 에 onClick 추가하면 오류가 발생할 수도 있어서 컴포넌트 안에다가 다는 것이 좋음
+function 컴포넌트(){
+return <div onClick={}></div>
+}
+페이지 이동은 history.push()
+
+    // array 안에 있던 a와 데이터가 ??와 일치하늕 확인
+    // index 값이 남음
+
+```js
+function Component() {
+  return <div>{true === true ? <p> 참입니다 </p> : null)}</div>;
+}
+```
+
+```js
+function Component()
+
+switch(){
+  case '조건1' :
+    return 조건1일경우 실행코드;
+  case '조건2' :
+    return 조건1일경우 실행코드;
+  default : 기본값 (if문에서 else)
+}
+function reducer(state, action){
+  switch(action.type){
+    case '수량증가' :
+      return 실행할 코드;
+    case '수량감소' :
+      return 실행할 코드;
+    default : state
+  }
+}
+
+```
+
+```js
+function Component()
+
+let 현재상태 = '상태1'
+
+return (
+  <div>
+  {
+    {
+      상태1 : <p> 상태1 </p>,
+      상태2 : <p> 상태2 </p>,
+      상태3 : <p> 상태3 </p>,
+    }[현재상태]
+  }
+  </div>
+)
+```
+
+함수나 오브젝트는 선언해서 사용하기
+이름없는 콜백함수 X 선언해서
+-> 메모리 할당에 좋음
+
+애니메이션margin width padding 레이아웃을 잡는 속성들을 사용하면 렌더링이 오래걸림
+transform 활용하면 조금 줄일 수 있음
+
+컴포넌트 import할 때 미리 다 로드함,,,-> 오래 걸림
+lazy loading 하기
+필요해졌을 때 import 해주세요
+import 대신에 lazy, Suspense from 'react'
+let 컴포넌트 = lazy(()=>{ return import('./경로')})
+let 컴포넌트 = lazy(()=>import('./경로'))
+Suspense와 같이 씀
+해당 컴포넌트를 Suspense로 감싸야 함
+<Suspense fallback={로딩전까지 보여줄 HTML}>
+<컴포넌트 />
+</Suspense>
+
+개발자 도구 크롬 확장 프로그램
+
+react dev Tools
+
+profiler 렌더링 시간 측정
+
+Memo() 불필요한 재렌더링 막기 가능
+props를 기억 props가 변경이 안된 컴포넌트는 재렌더링하지 않도록 막기
+import {memo} from 'react'
+memo로 감싸기
+
+단점 기존 props vs 바뀐 props 비교 연산 후 컴포넌트 업데이트할지말지 결정.
+props가 많으면 렌더링이 오래걸림
+
+부모컴포넌트의 props 값 중 1개를 변경할 경우 변경되지 않는 값도 같이 변경됨 -> 막기 위해서 사용하는 것이 memo
+
+```js
+function 최상위컴포넌트(props){
+  return (
+    <부모컴포넌트 이름="이름" 나이="나이" />
+  )
+}
+
+function 부모컴포넌트(props){
+  return (
+    <자식컴포넌트 1 이름={props.이름} />
+    <자식컴포넌트 2 나이={props.나이} />
+  )
+}
+
+
+function 자식컴포넌트1(){
+useEffect(()=>{ console.log('렌더링됨1)})
+return <div>1</div>
+}
+
+function 자식컴포넌트2(){
+useEffect(()=>{ console.log('렌더링됨2)})
+return <div>2</div>
+}
+```
+
+```js
+let 컴포넌트명 = memo(function(){
+useEffect(()=>{ console.log('렌더링됨2)})
+return <div>2</div>
+})
+```

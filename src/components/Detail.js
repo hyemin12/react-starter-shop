@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  useHistory,
-  useParams,
-} from "react-router-dom/cjs/react-router-dom.min";
+import { useHistory, useParams } from "react-router-dom";
 
 import { connect } from "react-redux";
 import "../css/Detail.scss";
@@ -28,6 +25,7 @@ function Detail(props) {
   let shoesId = props.shoes.find((shoesData) => {
     return shoesData.id == id;
   });
+  console.log(shoesId);
 
   function rmStock() {
     let i = shoesId.id;
@@ -73,7 +71,7 @@ function Detail(props) {
               rmStock();
               props.dispatch({
                 type: "항목추가",
-                payload: { id: 4, name: "슬리퍼", quan: 1 },
+                data: { id: shoesId.id, name: shoesId.title, quan: 1 },
               });
               history.push("/cart");
             }}
